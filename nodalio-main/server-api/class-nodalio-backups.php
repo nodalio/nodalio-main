@@ -199,11 +199,11 @@ final class Nodalio_Site_Backups_Class {
                                     ?></td>
                                     <td class="row-actions visible">
                                         <span>
-                                            <a href="<?php esc_url(add_query_arg(array(
+                                            <a href="<?php echo esc_url(add_query_arg(array(
                                                 'action' => 'restore',
                                                 'backup-name' => $backup->filename
                                             ),$current_page)); ?>" target="_blank"><?php _e('Restore', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a> |
-                                            <a href="<?php esc_url(add_query_arg(array(
+                                            <a href="<?php echo esc_url(add_query_arg(array(
                                                 'action' => 'restore-full',
                                                 'backup-name' => $backup->filename
                                             ),$current_page)); ?>" target="_blank"><?php _e('Restore with files', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a>
@@ -366,15 +366,15 @@ final class Nodalio_Site_Backups_Class {
                                     ?></td>
                                     <td class="row-actions visible">
                                         <span>
-                                            <a href="<?php esc_url(add_query_arg(array(
+                                            <a href="<?php echo esc_url(add_query_arg(array(
                                                 'action' => 'restoreoc',
                                                 'backup-name' => $backup->filename
                                             ),$current_page)); ?>" target="_blank"><?php _e('Restore', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a> |
-                                            <a href="<?php esc_url(add_query_arg(array(
+                                            <a href="<?php echo esc_url(add_query_arg(array(
                                                 'action' => 'restoreoc-full',
                                                 'backup-name' => $backup->filename
                                             ),$current_page)); ?>" target="_blank"><?php _e('Restore with files', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a> |
-                                            <a href="<?php esc_url(add_query_arg(array(
+                                            <a href="<?php echo esc_url(add_query_arg(array(
                                                 'action' => 'oc',
                                                 'backup-name' => $backup->filename
                                             ),$current_page)); ?>" target="_blank"><?php _e('Backup', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a>
