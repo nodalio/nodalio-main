@@ -83,31 +83,42 @@ final class Nodalio_Site_Staging_Class {
 	public function nodalio_main_add_site_staging_actions() {
 		$cache_selected = get_option( 'nodalio_main_active_cache', 'server-cache' );
 		$messages = array();
-		if ( isset( $_POST['save_cache_settings'] ) ) {
-			if ( isset( $_POST['nodalio_cache_selection'] ) ) {
-                require( NODALIO_MAIN_PLUGIN_DIR . 'server-api/class-nodalio-command.php' );
-                $cache = new Nodalio_API_Command( NODALIO_PRIVATE_KEY, 'cacheoff' );
-                $cache = $cache->runCommand();
-			}
-			
-			if ( is_wp_error( $cache ) ) {
-				foreach ( $cache->get_error_messages() as $message ) {
+		if ( isset( $_POST['nodalio_move_to_staging'] ) ) {
+			//require( NODALIO_MAIN_PLUGIN_DIR . 'server-api/class-nodalio-command.php' );
+			$staging = new Nodalio_API_Command( NODALIO_PRIVATE_KEY, 'sitemovetostaging', '' );
+			$staging = $staging->runCommand();
+			if ( is_wp_error( $staging ) ) {
+				foreach ( $staging->get_error_messages() as $message ) {
 					$message = '<div class="notice notice-error"><p>' . $message . '</p></div>';
 					array_push( $messages, $message );
 				}
 			} else {
-				$cache = json_decode( wp_remote_retrieve_body( $cache ) );
-				if ( $cache->result == "success" ) {
-					$message = '<div class="notice notice-success"><p>' . __( 'Saved Caching Settings.', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) . '</p></div>';
+				$staging = json_decode( wp_remote_retrieve_body( $staging ) );
+				if ( $staging->result == "success" ) {
+					$message = '<div class="notice notice-success"><p>' . __( 'Successfully Moved the site to staging.', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) . '</p></div>';
 					array_push( $messages, $message );
 				} else {
-					if ( $cache->data == "exitcode: 5" ) {
-						$message = '<div class="notice notice-error"><p>' . __( 'The chosen caching tool is not available for your plan, please consider upgrading your plan.', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) . '</p></div>';
-						array_push( $messages, $message );
-					} else {
-						$message = '<div class="notice notice-error"><p>' . __( 'An error has occured when attempting to change the caching tool. ' . $cache->data , NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) . '</p></div>';
-						array_push( $messages, $message );
-					}
+					$message = '<div class="notice notice-error"><p>' . __( 'An error has occured when attempting to move the site to staging. ' . $staging->data , NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) . '</p></div>';
+					array_push( $messages, $message );
+				}
+			}
+		} else if ( isset( $_POST['nodalio_move_to_live'] ) ) {
+			//require( NODALIO_MAIN_PLUGIN_DIR . 'server-api/class-nodalio-command.php' );
+			$live = new Nodalio_API_Command( NODALIO_PRIVATE_KEY, 'sitemovetolive' );
+			$live = $live->runCommand();
+			if ( is_wp_error( $staging ) ) {
+				foreach ( $live->get_error_messages() as $message ) {
+					$message = '<div class="notice notice-error"><p>' . $message . '</p></div>';
+					array_push( $messages, $message );
+				}
+			} else {
+				$live = json_decode( wp_remote_retrieve_body( $live ) );
+				if ( $live->result == "success" ) {
+					$message = '<div class="notice notice-success"><p>' . __( 'Successfully Moved the site to live.', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) . '</p></div>';
+					array_push( $messages, $message );
+				} else {
+					$message = '<div class="notice notice-error"><p>' . __( 'An error has occured when attempting to move the site to live. ' . $live->data , NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) . '</p></div>';
+					array_push( $messages, $message );
 				}
 			}
 		}

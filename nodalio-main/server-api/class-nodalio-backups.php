@@ -202,11 +202,11 @@ final class Nodalio_Site_Backups_Class {
                                             <a href="<?php echo esc_url(add_query_arg(array(
                                                 'action' => 'restore',
                                                 'backup-name' => $backup->filename
-                                            ),$current_page)); ?>"><?php _e('Restore', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a> |
+                                            ),$current_page)); ?>" target="_blank"><?php _e('Restore', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a> |
                                             <a href="<?php echo esc_url(add_query_arg(array(
                                                 'action' => 'restore-full',
                                                 'backup-name' => $backup->filename
-                                            ),$current_page)); ?>"><?php _e('Restore with files', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a>
+                                            ),$current_page)); ?>" target="_blank"><?php _e('Restore with files', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a>
                                         </span>
                                     </td>
                                 </tr>
@@ -315,8 +315,7 @@ final class Nodalio_Site_Backups_Class {
         }
 		?>
         <div class="wrap">
-        <h1><?php _e( 'OnClick Backups', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></h1>
-            <button name="create-new-onclick" id="create-new-onclick" type="create-new-onclick" class="page-title-action"><?php _e('Create New Onclick', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></button>
+        <h1><?php _e( 'OnClick Backups', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?><button name="create-new-onclick" id="create-new-onclick" type="create-new-onclick" class="page-title-action"><?php _e('Create New Onclick', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></button></h1>
 			<p><?php _e( "Welcome to the Nodalio backups page, here you can restore your site from OnClick Backups. You can also create a new backup on an already exisitng OnClick backup.", NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></p>
 			<?php 
 				if ( ! empty( $messages ) ) {
@@ -367,17 +366,20 @@ final class Nodalio_Site_Backups_Class {
                                     <td class="row-actions visible">
                                         <span>
                                             <a href="<?php echo esc_url(add_query_arg(array(
+                                                'page'  => 'nodalio-main-site-onclick-backups',
                                                 'action' => 'restoreoc',
                                                 'backup-name' => $backup->filename
-                                            ),$current_page)); ?>"><?php _e('Restore', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a> |
+                                            ),admin_url())); ?>" target="_blank"><?php _e('Restore', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a> |
                                             <a href="<?php echo esc_url(add_query_arg(array(
+                                                'page'  => 'nodalio-main-site-onclick-backups',
                                                 'action' => 'restoreoc-full',
                                                 'backup-name' => $backup->filename
-                                            ),$current_page)); ?>"><?php _e('Restore with files', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a> |
+                                            ),admin_url())); ?>" target="_blank"><?php _e('Restore with files', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a> |
                                             <a href="<?php echo esc_url(add_query_arg(array(
+                                                'page'  => 'nodalio-main-site-onclick-backups',
                                                 'action' => 'oc',
                                                 'backup-name' => $backup->filename
-                                            ),$current_page)); ?>"><?php _e('Backup', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a>
+                                            ),admin_url())); ?>" target="_blank"><?php _e('Backup', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></a>
                                         </span>
                                     </td>
                                 </tr>

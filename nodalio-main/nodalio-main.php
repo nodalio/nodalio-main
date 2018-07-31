@@ -350,8 +350,7 @@ final class Nodalio_Main_Class {
         }
 		?>
 		<div class="wrap">
-			<h1><?php _e( 'Site Information', $this->textdomain ) ?></h1>
-			<a href="#" id="refresh_site_info" class="refresh_site_info page-title-action"><?php _e( 'Refresh Information', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></a>
+			<h1><?php _e( 'Site Information', $this->textdomain ) ?><a href="#" id="refresh_site_info" class="refresh_site_info page-title-action"><?php _e( 'Refresh Information', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></a></h1>
 			<p><?php _e( "Welcome to your site's control panel, here you can view different essential information.", $this->textdomain ) ?></p>
 			<?php 
 				if ( ! empty( $messages ) ) {
