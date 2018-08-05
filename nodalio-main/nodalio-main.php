@@ -127,6 +127,8 @@ final class Nodalio_Main_Class {
 		define( 'NODALIO_MAIN_PLUGIN_DIR', $this->plugin_path );
 		define( 'NODALIO_MAIN_PLUGIN_URI', $this->plugin_url );
 		define( 'NODALIO_MAIN_PLUGIN_TEXTDOMAIN', $this->testdomain );
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 	}
 
 	/**
@@ -347,11 +349,11 @@ final class Nodalio_Main_Class {
                 $message = '<div class="notice notice-error"><p>' . $message . '</p></div>';
                 array_push( $messages, $message );
             }
-        }
+		}
 		?>
 		<div class="wrap">
-			<h1><?php _e( 'Site Information', $this->textdomain ) ?><a href="#" id="refresh_site_info" class="refresh_site_info page-title-action"><?php _e( 'Refresh Information', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></a></h1>
-			<p><?php _e( "Welcome to your site's control panel, here you can view different essential information.", $this->textdomain ) ?></p>
+			<h1><?php _e( 'General Site Information', $this->textdomain ) ?></h1>
+			<p><?php _e( "Get all the site information in one place.", $this->textdomain ) ?></p>
 			<?php 
 				if ( ! empty( $messages ) ) {
 					foreach ( $messages as $message ) {
@@ -359,97 +361,195 @@ final class Nodalio_Main_Class {
 					}
                 }
             ?>
-			<table class="form-table">
-				<tr valign="top" class="site-primary-domain">
-					<th scope="row"><label><?php _e('Site Primary Domain', $this->textdomain ); ?></label></th>
+			<table class="form-table widefat striped bottom-margin">
+				<thead>
+					<tr>
+						<td colspan="2" data-export-label="<?php _e('Site Information', $textdomain ); ?>">
+							<h2><?php _e('Site Information', $textdomain ); ?><a href="#" id="refresh_site_info" class="refresh_site_info page-title-action"><?php _e( 'Refresh Information', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></a></h2>
+						</td>
+					</tr>
+				</thead>
+				<tr class="site-primary-domain">
 					<td>
-						<code><?php print esc_html( NODALIO_PRIMARY_DOMAIN ) ?></code>
+						<label><?php _e('Site Primary Domain', $this->textdomain ); ?></label>
+					</td>
+					<td>
+						<strong><p><?php print esc_html( NODALIO_PRIMARY_DOMAIN ) ?></p></strong>
 					</td>
 				</tr>
-				<tr valign="top" class="server-ip">
-					<th scope="row"><label><?php _e('Server IP:', $this->textdomain ); ?></label></th>
+				<tr class="server-ip">
 					<td>
-						<code><?php print esc_html( NODALIO_SERVER_IP ) ?></code>
+						<label><?php _e('Server IP:', $this->textdomain ); ?></label>
+					</td>
+					<td>
+						<strong><p><?php print esc_html( NODALIO_SERVER_IP ) ?></p></strong>
 					</td>
 				</tr>
-				<tr valign="top" class="sftp-access">
-					<th scope="row"><label><?php _e('SFTP Access to your site is at:', $this->textdomain ); ?></label></th>
+				<tr class="sftp-access">
 					<td>
-						<p class="sftp-hostname" id="nodalio_info_hostname"><?php _e('Hostname: ', $this->textdomain ); ?></p><code><?php print esc_html( NODALIO_PRIMARY_DOMAIN ) ?></code>
-						<p class="sftp-ip" id="nodalio_info_server_ip"><?php _e('Or IP: ', $this->textdomain ); ?></p><code><?php print esc_html( NODALIO_SERVER_IP ) ?></code>
-						<p class="sftp-port" id="nodalio_info_port"><?php _e('Port: ', $this->textdomain ); ?></p><code><?php print esc_html( NODALIO_SFTP_PORT ) ?></code>
-						<p class="sftp-extra" id="nodalio_info_doc_url"><?php _e('To access the site via SFTP you may use the initial credentials sent during site creation or obtain new credentials via ', $this->textdomain ); ?><a href="<?php print esc_html( NODALIO_WHITELABEL_DOCS_URL ) ?>"><?php print esc_html( NODALIO_WHITELABEL_DOCS_URL ) ?></a></p>
+						<label><?php _e('SFTP Access to your site is at:', $this->textdomain ); ?></label>
+					</td>
+					<td>
+						<strong><p id="nodalio_info_hostname"><?php echo __('Hostname: ', $this->textdomain ) . esc_html( NODALIO_PRIMARY_DOMAIN ) . __(' or ', $this->textdomain ) . esc_html( NODALIO_SERVER_IP ) ?></p></strong>
+						<strong><p class="sftp-port" id="nodalio_info_port"><?php _e('Port: ', $this->textdomain );  print esc_html( NODALIO_SFTP_PORT ) ?></p></strong>
+						<strong><p class="sftp-extra" id="nodalio_info_doc_url"><?php _e('Username & password: Please use the credential sent when the site was created or request new credentials from your server administrator.', $this->textdomain ); ?></p></strong>
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><label><?php _e('PHP Version: ', $this->textdomain ); ?></label></th>
-					<td><code><?php echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION; ?></code></td>
+					<td>
+						<label><?php _e('PHP Version: ', $this->textdomain ); ?></label>
+					</td>
+					<td>
+						<strong><p><?php echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION; ?></p></strong>
+					</td>
 				</tr><?php
-				if ( ! empty( $siteinfo ) && ! is_wp_error( $siteinfo ) && $siteinfo->result != "failure" ) {
-					if ( $siteinfo ) {
+				if ( ! empty( $siteinfo ) && ! is_wp_error( $siteinfo ) && $siteinfo->result != "failure" && $siteinfo ) {
+					?>
+					<tr>
+						<td>
+							<label><?php _e('Active Caching tool: ', $this->textdomain ); ?></label>
+						</td>
+						<td>
+							<strong><p id="nodalio_info_cache_tool"><?php echo $siteinfo->cache_tool ?></p></strong>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label><?php _e('Site Owner Email: ', $this->textdomain ); ?></label>
+						</td>
+						<td>
+							<strong><p id="nodalio_info_owner_email"><?php echo $siteinfo->owner_email ?></p></strong>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label><?php _e('Site Creation Date: ', $this->textdomain ); ?></label>
+						</td>
+						<td>
+							<strong><p id="nodalio_info_creation_date"><?php echo $siteinfo->creation_date ?></p></strong>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label><?php _e('Primary Domain SSL Certificate: ', $this->textdomain ); ?></label>
+						</td>
+						<td>
+							<strong><p id="nodalio_info_ssl_certificatel"><?php ($siteinfo->ssl_certificate != "none") ? $SSL = $siteinfo->ssl_certificate . " certificate." : $SSL = "Not installed"; echo $SSL; ?></p></strong>
+						</td>
+					</tr>
+					<?php
+					if ( $this->nodalio_filter_feature_by_plan('wildcard', $siteinfo->server_plan) && $siteinfo->domain_wildcard) {
 						?>
 						<tr>
-							<th scope="row"><label><?php _e('Active Caching tool: ', $this->textdomain ); ?></label></th>
-							<td><code id="nodalio_info_cache_tool"><?php echo $siteinfo->cache_tool ?></code></td>
-						</tr>
-						<tr>
-							<th scope="row"><label><?php _e('Site Owner Email: ', $this->textdomain ); ?></label></th>
-							<td><code id="nodalio_info_owner_email"><?php echo $siteinfo->owner_email ?></code></td>
-						</tr>
-						<tr>
-							<th scope="row"><label><?php _e('Site Creation Date: ', $this->textdomain ); ?></label></th>
-							<td><code id="nodalio_info_creation_date"><?php echo $siteinfo->creation_date ?></code></td>
-						</tr>
-						<tr>
-							<th scope="row"><label><?php _e('Primary Domain SSL Certificate: ', $this->textdomain ); ?></label></th>
-							<td><code id="nodalio_info_ssl_certificatel"><?php ($siteinfo->ssl_certificate != "none") ? $SSL = $siteinfo->ssl_certificate . " certificate." : $SSL = "Not installed"; echo $SSL; ?></code></td>
-						</tr>
-						<?php
-						if ( $this->nodalio_filter_feature_by_plan('wildcard', $siteinfo->server_plan) && $siteinfo->domain_wildcard) {
+							<td>
+								<label><?php _e('Domain Wildcard: ', $this->textdomain ); ?></label>
+							</td>
+							<td>
+								<strong><p id="nodalio_info_domain_wildcard"><?php (($siteinfo->domain_wildcard) && ($siteinfo->domain_wildcard == "enabled") ) ? $domain_wildcard = "Enabled" : $domain_wildcard = "Disabled"; echo $domain_wildcard; ?></p></strong>
+							</td>
+						</tr><?php
+						if (($siteinfo->domain_wildcard) && ($siteinfo->domain_wildcard == "enabled") ) {
 							?>
 							<tr>
-								<th scope="row"><label><?php _e('Domain Wildcard: ', $this->textdomain ); ?></label></th>
-								<td><code id="nodalio_info_domain_wildcard"><?php (($siteinfo->domain_wildcard) && ($siteinfo->domain_wildcard == "enabled") ) ? $domain_wildcard = "Enabled" : $domain_wildcard = "Disabled"; echo $domain_wildcard; ?></code></td>
-							</tr><?php
-							if (($siteinfo->domain_wildcard) && ($siteinfo->domain_wildcard == "enabled") ) {
-								?>
-								<tr>
-									<th scope="row"><label><?php _e('Domain Wildcard SSL Certificate: ', $this->textdomain ); ?></label></th>
-									<td><code id="nodalio_info_domain_wildcard_ssl_certificate"><?php (($siteinfo->domain_wildcard_ssl) && ($siteinfo->domain_wildcard_ssl != "none") ) ? $domain_wildcard_ssl = "Enabled" : $domain_wildcard_ssl = "Disabled"; echo $domain_wildcard_ssl; ?></code></td>
-								</tr>
-								<?php
-							}
-						}
-						if ( $this->nodalio_filter_feature_by_plan('trafficcontrol', $siteinfo->server_plan) && $siteinfo->traffic_control ) {
-							?>
-							<tr>
-								<th scope="row"><label><?php _e('Traffic Control: ', $this->textdomain ); ?></label></th>
-								<td><code id="nodalio_info_traffic_control"><?php ($siteinfo->traffic_control == "true") ? $keepalive = "Enabled" : $keepalive = "Disabled"; echo $keepalive; ?></code></td>
+								<td>
+									<label><?php _e('Domain Wildcard SSL Certificate: ', $this->textdomain ); ?></label>
+								</td>
+								<td>
+									<strong><p id="nodalio_info_domain_wildcard_ssl_certificate"><?php (($siteinfo->domain_wildcard_ssl) && ($siteinfo->domain_wildcard_ssl != "none") ) ? $domain_wildcard_ssl = "Enabled" : $domain_wildcard_ssl = "Disabled"; echo $domain_wildcard_ssl; ?></p></strong>
+								</td>
 							</tr>
 							<?php
 						}
-						if ($siteinfo->keepalive) {
-							?>
-							<tr>
-								<th scope="row"><label><?php _e('KeepAlive: ', $this->textdomain ); ?></label></th>
-								<td><code id="nodalio_info_keepalive"><?php ($siteinfo->keepalive == "true") ? $keepalive = "Enabled" : $keepalive = "Disabled"; echo $keepalive; ?></code></td>
-							</tr>
-							<?php
-						}
-						if ($siteinfo->appcl) {
-							?>
-							<tr>
-								<th scope="row"><label><?php _e('Application Cache Lock: ', $this->textdomain ); ?></label></th>
-								<td><code id="nodalio_info_appcl"><?php ($siteinfo->appcl == "true") ? $appcl = "Enabled" : $appcl = "Disabled"; echo $appcl; ?></code></td>
-							</tr>
-							<?php
-						}
+					}
+					if ( $this->nodalio_filter_feature_by_plan('trafficcontrol', $siteinfo->server_plan) && $siteinfo->traffic_control ) {
 						?>
-
+						<tr>
+							<td>
+								<label><?php _e('Traffic Control: ', $this->textdomain ); ?></label>
+							</td>
+							<td>
+								<strong><p id="nodalio_info_traffic_control"><?php ($siteinfo->traffic_control == "true") ? $keepalive = "Enabled" : $keepalive = "Disabled"; echo $keepalive; ?></p></strong>
+							</td>
+						</tr>
 						<?php
 					}
+					if ($siteinfo->keepalive) {
+						?>
+						<tr>
+							<td>
+								<label><?php _e('KeepAlive: ', $this->textdomain ); ?></label>
+							</td>
+							<td>
+								<strong><p id="nodalio_info_keepalive"><?php ($siteinfo->keepalive == "true") ? $keepalive = "Enabled" : $keepalive = "Disabled"; echo $keepalive; ?></p></strong>
+							</td>
+						</tr>
+						<?php
+					}
+					if ($siteinfo->appcl) {
+						?>
+						<tr>
+							<td>
+								<label><?php _e('Application Cache Lock: ', $this->textdomain ); ?></label>
+							</td>
+							<td>
+								<strong><p id="nodalio_info_appcl"><?php ($siteinfo->appcl == "true") ? $appcl = "Enabled" : $appcl = "Disabled"; echo $appcl; ?></p></strong>
+							</td>
+						</tr>
+						<?php
+					}
+					?>
+
+					<tr>
+						<td>
+							<label><?php _e('Live Access Log: ', $this->textdomain ); ?></label>
+						</td>
+						<td>
+							<?php if ( $siteinfo->accesslog_live == "enabled" ) { ?>
+								<a href="http://<?php echo NODALIO_PRIMARY_DOMAIN . '/' . NODALIO_PRIMARY_DOMAIN . '.access.log' ?> "><strong><?php _e('Live Access Log ', $this->textdomain ); ?></strong></a>
+							<?php } else { ?>
+								<strong><p><?php _e( 'Disabled',$this->textdomain ) ?></p></strong>
+							<?php } ?>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label><?php _e('Staging Access Log: ', $this->textdomain ); ?></label>
+						</td>
+						<td>
+						<?php if ( $siteinfo->accesslog_staging == "enabled" ) { ?>
+							<a href="http://<?php echo NODALIO_PRIMARY_DOMAIN . '/staging/' . NODALIO_PRIMARY_DOMAIN . '.access.log' ?> "><strong><?php _e('Staging Access Log ', $this->textdomain ); ?></strong></a>
+						<?php } else { ?>
+							<strong><p><?php _e( 'Disabled',$this->textdomain ) ?></p></strong>
+						<?php } ?>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label><?php _e('Live Error Log: ', $this->textdomain ); ?></label>
+						</td>
+						<td>
+						<?php if ( $siteinfo->errorlog_live == "enabled" ) { ?>
+							<a href="http://<?php echo NODALIO_PRIMARY_DOMAIN . '/' . NODALIO_PRIMARY_DOMAIN . '.error.log' ?> "><strong><?php _e('Live Error Log ', $this->textdomain ); ?></strong></a>
+						<?php } else { ?>
+							<strong><p><?php _e( 'Disabled',$this->textdomain ) ?></p></strong>
+						<?php } ?>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label><?php _e('Staging Error Log: ', $this->textdomain ); ?></label>
+						</td>
+						<td>
+							<?php if ( $siteinfo->errorlog_staging == "enabled" ) { ?>
+								<a href="http://<?php echo NODALIO_PRIMARY_DOMAIN . '/staging/' . NODALIO_PRIMARY_DOMAIN . '.error.log' ?> "><strong><?php _e('Staging Error Log ', $this->textdomain ); ?></strong></a>
+							<?php } else { ?>
+								<strong><p><?php _e( 'Disabled',$this->textdomain ) ?></p></strong>
+							<?php } ?>
+						</td>
+					</tr>
+					<?php
 				}
-				?>
+			?>
 			</table>
 			<script type="application/javascript">
 			jQuery( function($) {
@@ -478,13 +578,13 @@ final class Nodalio_Main_Class {
 							$('#nodalio_info_owner_email').text(siteinfo.owner_email);
 							$('#nodalio_info_creation_date').text(siteinfo.creation_date);
 							if (siteinfo.ssl_certificate != "none") {
-								$('#nodalio_info_ssl_certificatel').text(siteinfo.ssl_certificate + <?php _e( ' certificate', $this->textdomain ) ?>);
+								$('#nodalio_info_ssl_certificatel').text(siteinfo.ssl_certificate + "<?php _e( ' certificate', $this->textdomain ) ?>");
 							} else {
 								$('#nodalio_info_ssl_certificatel').text("<?php _e( 'Not Installed', $this->textdomain ) ?>");
 							}
 							$('#nodalio_info_domain_wildcard').text(siteinfo.domain_wildcard);
 							if (siteinfo.domain_wildcard_ssl != "none") {
-								$('#nodalio_info_domain_wildcard_ssl_certificate').text(siteinfo.domain_wildcard_ssl + <?php _e( ' certificate', $this->textdomain ) ?>);
+								$('#nodalio_info_domain_wildcard_ssl_certificate').text(siteinfo.domain_wildcard_ssl + "<?php _e( ' certificate', $this->textdomain ) ?>");
 							} else {
 								$('#nodalio_info_domain_wildcard_ssl_certificate').text("<?php _e( 'Not Installed', $this->textdomain ) ?>");
 							}
@@ -565,6 +665,12 @@ final class Nodalio_Main_Class {
 		// Register Translation Files
 		load_plugin_textdomain( $this->textdomain, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		
+	}
+
+	public function admin_enqueue_scripts($hook) {
+		if ( $hook == "toplevel_page_nodalio-main-info" || $hook == "nodalio_page_nodalio-main-site-caching" || $hook == 'nodalio_page_nodalio-main-site-staging' ) {
+			wp_enqueue_style( 'nodalio_site_plugin', $this->plugin_url . 'assets/css/nodalio-plugin-admin.css', array(), '1.0.0' );
+		}
 	}
 	
 }

@@ -118,8 +118,8 @@ final class Nodalio_Site_Cache_Class {
 				$cache = new Nodalio_API_Command( NODALIO_PRIVATE_KEY, 'cacheoff-noreload' );
 				$cache = $cache->runCommand();
 			} else if ( $_POST['cache_tool'] === "microcache" ) {
-				if ( isset( $_POST['nodalio_cache_selection_microcache_minutes'] ) && is_numeric( $_POST['nodalio_cache_selection_microcache_minutes'] ) ) {
-					$cache = new Nodalio_API_Command( NODALIO_PRIVATE_KEY, 'microcache', $_POST['nodalio_cache_selection_microcache_minutes'] );
+				if ( isset( $_POST['microcache_minutes'] ) && is_numeric( intval($_POST['microcache_minutes']) ) ) {
+					$cache = new Nodalio_API_Command( NODALIO_PRIVATE_KEY, 'microcache', $_POST['microcache_minutes'] );
 					$cache = $cache->runCommand();
 					//var_dump($cache);
 				} else {
@@ -129,6 +129,8 @@ final class Nodalio_Site_Cache_Class {
 				$cache = new Nodalio_API_Command( NODALIO_PRIVATE_KEY, 'cacheon-noreload', $_POST['cache_tool'] );
 				$cache = $cache->runCommand();
 			}
+		} else {
+			$cache = new WP_Error('no_cache_tool_selected', 'Error! No cache tool has been selected');
 		}
 		
 		if ( is_wp_error( $cache ) ) {
@@ -144,7 +146,9 @@ final class Nodalio_Site_Cache_Class {
 				//array_push( $messages, $message );
 				echo $message;
 				update_option( 'nodalio_main_active_cache', $_POST['cache_tool'] );
-				nodalio_refresh_site_info(true);
+				if ( $_POST['cache_tool'] ) {
+					update_option( 'nodalio_main_microcache_minutes', $_POST['microcache_minutes'] );
+				}
 			} else {
 				if ( $cache->data == "exitcode: 5" ) {
 					$message = '<div class="notice notice-error"><p>' . __( 'The chosen caching tool is not available for your plan, please consider upgrading your plan.', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) . '</p></div>';
@@ -157,6 +161,7 @@ final class Nodalio_Site_Cache_Class {
 				}
 			}
 		}
+		nodalio_refresh_site_info(true);
 		wp_die();
 	}
 
@@ -197,8 +202,6 @@ final class Nodalio_Site_Cache_Class {
 		if ( isset( $_POST['save_cache_settings'] ) ) {
 			// Do Nothing
 		}
-		$ajaxurl = admin_url( 'admin-ajax.php' );
-		wp_localize_script( 'ajaxscript', 'ajaxurl', $ajaxurl );
 		?>
 		<div class="wrap">
 			<h1><?php _e( 'Cache', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></h1>
@@ -211,41 +214,47 @@ final class Nodalio_Site_Cache_Class {
 				}
 			?>
 			<form method="post" class="nodalio-main-cache-settings">
-			<table class="form-table" style="transition: 0.3s">
+			<table class="form-table widefat striped">
+				<thead>
+					<tr>
+						<td colspan="2" data-export-label="<?php _e('Site Caching', $textdomain ); ?>">
+							<h2><?php _e('Site Caching', $textdomain ); ?></h2>
+						</td>
+					</tr>
+				</thead>
 				<tr class="site-primary-caching">
-					<th valign="top" style="padding-top: 15px"><label for="nodalio_cache_selection" ><?php _e('Set Site Caching Tool', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label></th>
+					<td valign="top" style="padding-top: 15px"><label for="nodalio_cache_selection" ><?php _e('Set Site Caching Tool', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label></td>
 					<td>
-						<input type="radio" id="disabled" name="nodalio_cache_selection" value="disabled" <?php checked( $cache_selected, 'disabled' ); ?>>
-						<label for="disabled"><?php _e('Disabled', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label><br>
-						<input type="radio" id="servercache" name="nodalio_cache_selection" value="servercache" <?php checked( $cache_selected, 'servercache' ); $this->disable_not_available_cache_tools('servercache', NODALIO_PLAN ); ?>>
-						<label for="servercache"><?php _e('Server Cache', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label><br>
-						<input type="radio" id="onecache" name="nodalio_cache_selection" value="onecache" <?php checked( $cache_selected, 'onecache' ); $this->disable_not_available_cache_tools('onecache', NODALIO_PLAN ); ?>>
-						<label for="onecache"><?php _e('OneCache', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label><br>
-						<input type="radio" id="nodalio_cache_selection_microcache" name="nodalio_cache_selection" value="microcache" <?php checked( $cache_selected, 'microcache' ); $this->disable_not_available_cache_tools('microcache', NODALIO_PLAN ); ?>>
-						<label for="nodalio_cache_selection_microcache"><?php _e('MicroCache', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label><br>
-						<input type="radio" id="opticache" name="nodalio_cache_selection" value="opticache" <?php checked( $cache_selected, 'opticache' ); $this->disable_not_available_cache_tools('opticache', NODALIO_PLAN ); ?>>
-						<label for="opticache"><?php _e('OptiCache', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label><br>
+						<select name="nodalio_cache_selection" id="nodalio_cache_selection">
+							<option value="disabled" <?php selected( $cache_selected, 'disabled' ); ?>><?php _e('Disabled', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></option>
+							<option value="servercache" <?php selected( $cache_selected, 'servercache' ); ?>><?php _e('Server Cache', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></option>
+							<option value="onecache" <?php selected( $cache_selected, 'onecache' ); ?>><?php _e('OneCache', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></option>
+							<option value="microcache" <?php selected( $cache_selected, 'microcache' ); ?>><?php _e('MicroCache', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></option>
+							<option value="opticache" <?php selected( $cache_selected, 'opticache' ); ?>><?php _e('OptiCache', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></option>
+						</select>
 					</td>
 				</tr>
-				<tr name="nodalio_microcache_minutes_section" style="visibility: hidden">
-					<th valign="top" style="padding-top: 15px"><label for="nodalio_cache_selection_microcache_minutes" ><?php _e('Set MicroCache Duration', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label></th>
+				<tr name="nodalio_microcache_minutes_section" <?php if ( $cache_selected != "microcache" ) echo 'style="display: none"' ?>>
+					<td valign="top" style="padding-top: 15px"><label for="nodalio_cache_selection_microcache_minutes" ><?php _e('Set MicroCache Duration', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label></td>
 					<td>
 						<input type="text" value="<?php echo get_option( 'nodalio_main_microcache_minutes', '10' ) ?>" id="nodalio_cache_selection_microcache_minutes" name="nodalio_cache_selection_microcache_minutes">
 					</td>
 				</tr>
 			</table>
 			<!-- <button name="save_cache_settings" id="save_cache_settings" type="save_cache_settings" class="button button-primary button-large menu-save"><?php //_e('Save Site Caching', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></button> -->
-			<a href="#" id="save_cache_settings" class="save_cache_settings button button-primary button-large menu-save"><?php _e( 'Save Site Caching', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></a>
-			<a href="#" id="nodalio_clear_cache" class="nodalio_clear_cache button button-primary button-large menu-save"><?php _e( 'Clear Site Cache', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></a>
+			<p class="submit">
+				<a href="#" id="save_cache_settings" class="save_cache_settings button button-primary button-large menu-save"><?php _e( 'Save Site Caching', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></a>
+				<a href="#" id="nodalio_clear_cache" class="nodalio_clear_cache button button-secondary button-large menu-save"><?php _e( 'Clear Site Cache', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></a>
+			</p>
 			</form>
 			<script type="application/javascript">
 			jQuery( function($) {
 				"use strict";
-				$('[name="nodalio_cache_selection"]').change( function () {
-					if (this.value == "microcache") {
-						$('[name="nodalio_microcache_minutes_section"]').css("visibility","visible");
+				$('[name="nodalio_cache_selection"]').change( function (e) {
+					if ($('#nodalio_cache_selection').find(":selected").val() == "microcache") {
+						$('[name="nodalio_microcache_minutes_section"]').css("display","block");
 					} else {
-						$('[name="nodalio_microcache_minutes_section"]').css("visibility","hidden");
+						$('[name="nodalio_microcache_minutes_section"]').css("display","none");
 					}
 				});
 
@@ -253,8 +262,8 @@ final class Nodalio_Site_Cache_Class {
 					e.preventDefault();
 					var data = {
 						action: 'nodalio_change_caching_tool',
-						cache_tool: $('input[name=nodalio_cache_selection]:checked').val(),
-						microcache_minutes: $('nodalio_cache_selection_microcache_minutes').val()
+						cache_tool: $('#nodalio_cache_selection').find(":selected").val(),
+						microcache_minutes: $('#nodalio_cache_selection_microcache_minutes').val()
 					};
 					$.post(ajaxurl, data, function(response) {
 						$(response).insertAfter( $( "#nodalio_cache_description" ) );

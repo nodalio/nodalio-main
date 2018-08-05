@@ -65,7 +65,7 @@ final class Nodalio_Site_Backups_Class {
 	} // End instance()
 
 	public function nodalio_setup_site_backups() {
-		add_action( 'admin_menu', array( $this, 'nodalio_main_add_site_backups_pages' ) );
+		//add_action( 'admin_menu', array( $this, 'nodalio_main_add_site_backups_pages' ) );
 		//require( NODALIO_MAIN_PLUGIN_DIR . 'server-api/class-nodalio-commands.php' );
 	}
 	

@@ -97,6 +97,7 @@ final class Nodalio_Site_Staging_Class {
 				if ( $staging->result == "success" ) {
 					$message = '<div class="notice notice-success"><p>' . __( 'Successfully Moved the site to staging.', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) . '</p></div>';
 					array_push( $messages, $message );
+					update_option('nodalio_last_staging_move', date('Y-m-d H:i') );
 				} else {
 					$message = '<div class="notice notice-error"><p>' . __( 'An error has occured when attempting to move the site to staging. ' . $staging->data , NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) . '</p></div>';
 					array_push( $messages, $message );
@@ -125,7 +126,7 @@ final class Nodalio_Site_Staging_Class {
 		?>
 		<div class="wrap">
 			<h1><?php _e( 'Staging', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></h1>
-			<p><?php _e( "Welcome to the Nodalio clear cache page, here you can clear your site's cache. Our plugin clears cache on most occasions, if for some reason cache has not been cleared, feel free to use the Clear Cache button. ", NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></p>
+			<p><?php _e( "This page allows you to move between live and staging environments when developing new features on your site.", NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); echo '<br>'; _e( 'Default staging credentials: user: staging | password: 123456.', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></p>
 			<?php 
 				if ( ! empty( $messages ) ) {
 					foreach ( $messages as $message ) {
@@ -134,25 +135,37 @@ final class Nodalio_Site_Staging_Class {
 				}
 			?>
 			<form method="post" class="nodalio-main-cache-settings">
-			<table class="form-table">
+			<table class="form-table widefat striped bottom-margin">
+				<thead>
+					<tr>
+						<td colspan="2" data-export-label="<?php _e('Site Environments', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?>">
+							<h2><?php _e('Site Environments', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></h2>
+						</td>
+					</tr>
+				</thead>
 				<tr class="site-move-to-staging">
-					<th valign="top"><label for="nodalio_move_to_staging" ><?php _e('Staging', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label></th>
-					<td><?php
-                        if ( get_option( 'nodalio_last_staging_move', false ) ) {
-                            ?>
-                            <p class="nodalio-staging-last-move"><?php _e('Site has been moved to staging on: ', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); echo get_option( 'nodalio_last_staging_move', false );
-                        }
-                        ?>
-                        <button name="nodalio_move_to_staging" id="nodalio_move_to_staging" type="nodalio_move_to_staging" class="button button-primary button-large menu-save"><?php _e('Move to Staging', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></button>
+					<td class="has-description">
+						<label for="nodalio_move_to_staging" ><?php _e('Deploy a LIVE site to the STAGING environment', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label>
+						<?php if ( get_option( 'nodalio_last_staging_move', false ) ) : ?><p class="nodalio-staging-last-move description"><?php _e('Last staging deployment: ', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); echo get_option( 'nodalio_last_staging_move', false ); ?></p><?php endif ?>
+					</td>
+					<td class="has-description">
+                        <button name="nodalio_move_to_staging" id="nodalio_move_to_staging" type="nodalio_move_to_staging" class="site-move staging-site button button-primary button-large menu-save"><?php _e('Move to Staging', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></button>
+						<p class="description"><?php _e( 'All content will be replaced.', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></p>
 					</td>
 				</tr>
-				<tr class="site-move-to-live">
-					<th valign="top"><label for="nodalio_move_to_live" ><?php _e('Live', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label></th>
+				<tr>
 					<td>
-                        <button name="nodalio_move_to_live" id="nodalio_move_to_live" type="nodalio_move_to_live" class="button button-primary button-large menu-save"><?php _e('Move to Live', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></button>
+						<label for="nodalio_move_to_live" ><?php _e('Deploy a STAGING site to the LIVE environment', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></label>
+					</td>
+					<td class="has-description">
+                        <button name="nodalio_move_to_live" id="nodalio_move_to_live" type="nodalio_move_to_live" class="site-move live-site button button-primary button-large menu-save"><?php _e('Move to Live', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ); ?></button>
+						<p class="description"><?php _e( 'All content will be replaced.', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></p>
 					</td>
 				</tr>
 			</table>
+			<p class="submit">
+				<a target="_blank" class="button button-secondary" href="<?php if ( $_SERVER['HTTPS'] == 'on' ) { echo "https://"; } else { echo "http://"; } echo $_SERVER['HTTP_HOST'] . '/staging' ?>"><?php _e( 'Access Staging Site', NODALIO_MAIN_PLUGIN_TEXTDOMAIN ) ?></a>
+			</p>
 			</form>
 		</div>
 		<?php
